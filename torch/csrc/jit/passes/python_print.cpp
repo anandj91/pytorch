@@ -168,11 +168,15 @@ const static std::unordered_set<std::string> reserved_names = {
 
 struct PythonPrintPass {
   using SourceRangeStack = std::vector<SourceRange>;
-  SourceRangeStack source_range_stack_ = {SourceRange("")};
+  SourceRangeStack source_range_stack_ = {SourceRange()};
 
   struct WithSourceRange {
-    explicit WithSourceRange(SourceRangeStack* stack, Node* n) : stack(stack) {
+    WithSourceRange(SourceRangeStack* stack, Node* n) : stack(stack) {
       TORCH_INTERNAL_ASSERT(stack);
+      if (n->kind() == prim::Constant) {
+        stack->push_back(SourceRange());
+        return;
+      }
       if (auto gen_source = n->sourceRange().findSourceRangeThatGenerated()) {
         stack->push_back(std::move(gen_source.value()));
       } else {
@@ -743,6 +747,7 @@ struct PythonPrintPass {
 
   template <typename T>
   void printOutputDefinition(Node* node, const T& expr) {
+    WithSourceRange guard(&source_range_stack_, node);
     assignValuesToTheirUniqueNames(node->outputs());
     indent();
     // Print outputs

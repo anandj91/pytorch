@@ -31,7 +31,12 @@ class SourceRangeDeserializer {
     std::shared_ptr<Source> source_ = deserialize_source(tup_elems[0]);
     int64_t start_ = tup_elems[1].toInt();
     int64_t end_ = tup_elems[2].toInt();
-    return SourceRange(source_, start_, end_);
+
+    if (source_) {
+      return SourceRange(source_, start_, end_);
+    } else {
+      return SourceRange();
+    }
   }
 
  private:
@@ -43,6 +48,9 @@ class SourceRangeDeserializer {
 
     auto tup_elems = tup->elements();
     TORCH_INTERNAL_ASSERT(tup_elems.size() == 3);
+    if (tup_elems[0].toString()->string() == "") {
+      return nullptr;
+    }
     std::string text_ = tup_elems[0].toString()->string();
     c10::optional<std::string> filename_ =
         tup_elems[1].toOptional<std::string>();
@@ -71,8 +79,12 @@ c10::IValue SourceRangeSerializer::serialize_source(
   if (serialized_sources.count(s)) {
     return serialized_sources.at(s);
   }
-  std::vector<c10::IValue> elements{
-      s->text(), s->filename(), (int64_t)s->starting_line_no()};
+  std::vector<c10::IValue> elements;
+  if (s == nullptr) {
+    elements = {"", "", 0};
+  } else {
+    elements = {s->text(), s->filename(), (int64_t)s->starting_line_no()};
+  }
   auto serialized = c10::ivalue::Tuple::create(std::move(elements));
   serialized_sources[s] = serialized;
   return serialized;
@@ -126,7 +138,7 @@ c10::optional<SourceRange> ConcreteSourceRangeUnpickler::
     findSourceRangeThatGenerated(const SourceRange& range) {
   unpickle();
 
-  auto query = TaggedRange(range.start(), SourceRange{""});
+  auto query = TaggedRange(range.start(), SourceRange{});
   auto entry = std::upper_bound(
       unpickled_records->begin(),
       unpickled_records->end(),
