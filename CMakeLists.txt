@@ -129,7 +129,7 @@ option(USE_NUMPY "Use NumPy" ON)
 option(USE_OBSERVERS "Use observers module." OFF)
 option(USE_OPENCL "Use OpenCL" OFF)
 option(USE_OPENCV "Use OpenCV" OFF)
-option(USE_OPENMP "Use OpenMP for parallel code" ON)
+option(USE_OPENMP "Use OpenMP for parallel code" OFF)
 option(USE_PROF "Use profiling" OFF)
 option(USE_QNNPACK "Use QNNPACK (quantized 8-bit operators)" ON)
 option(USE_REDIS "Use Redis" OFF)
@@ -141,7 +141,7 @@ option(USE_TENSORRT "Using Nvidia TensorRT library" OFF)
 option(USE_ZMQ "Use ZMQ" OFF)
 option(USE_ZSTD "Use ZSTD" OFF)
 cmake_dependent_option(
-  USE_MKLDNN "Use MKLDNN. Only available on x86 and x86_64." ON
+  USE_MKLDNN "Use MKLDNN. Only available on x86 and x86_64." OFF
   "CPU_INTEL" OFF)
 set(MKLDNN_ENABLE_CONCURRENT_EXEC ${USE_MKLDNN})
 cmake_dependent_option(
