@@ -213,6 +213,15 @@ if sys.platform == 'win32' and sys.maxsize.bit_length() == 31:
     print("32-bit Windows Python runtime is not supported. Please switch to 64-bit Python.")
     sys.exit(-1)
 
+import os
+os.environ["DEBUG"] = "1"
+os.environ["USE_CUDNN"] = "0"
+os.environ["USE_MKLDNN"] = "0"
+os.environ["BUILD_CAFFE2"] = "0"
+os.environ["BUILD_CAFFE2_OPS"] = "0"
+os.environ["USE_EXPERIMENTAL_CUDNN_V8_API"] = "0"
+
+
 import platform
 python_min_version = (3, 8, 0)
 python_min_version_str = '.'.join(map(str, python_min_version))
